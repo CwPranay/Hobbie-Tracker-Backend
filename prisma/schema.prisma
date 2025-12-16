@@ -1,50 +1,51 @@
-
-
 generator client {
-  provider = "prisma-client"
-  
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url =env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id String @id @default(uuid())
-  name String 
-  email String @unique
-  password String
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
   createdAt DateTime @default(now())
 
-  habits Habit[]
-  completions HabitCompletion[]
-  followers Follow[] @relation("followers")
-  following Follow[] @relation("following")
+  habits      Habit[]
+  
+  followers   Follow[] @relation("followers")
+  following   Follow[] @relation("following")
 }
 
 model Habit {
-  id String @id @default(uuid())
-  name String
-  frequency frequency
-  category String?
-  userId String
+  id        String   @id @default(uuid())
+  name      String
+  frequency Frequency
+  category  String?
+  userId    String
   createdAt DateTime @default(now())
 
-  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   completions HabitCompletion[]
-  @@unique([userid,name])
+
+  @@unique([userId, name])
 }
 
 model HabitCompletion {
-  id String @id @default(uuid())
-  habitId String
-  date DateTime
+  id        String   @id @default(uuid())
+  habitId  String
+  
+  date     DateTime
   createdAt DateTime @default(now())
-  habit Habit  @relation(fields:[habitId],references:[id],onDelete:Cascade)
-  @@unique([habitId,date])
-}
 
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  
+
+  @@unique([habitId, date])
+}
 
 model Follow {
   followerId  String
@@ -54,7 +55,7 @@ model Follow {
   follower  User @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
   following User @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
 
-  @@id([followerId, followingId]) // prevents duplicate follows
+  @@id([followerId, followingId])
 }
 
 enum Frequency {
