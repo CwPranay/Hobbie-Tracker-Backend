@@ -22,3 +22,42 @@ model User {
   followers Follow[] @relation("followers")
   following Follow[] @relation("following")
 }
+
+model Habit {
+  id String @id @default(uuid())
+  name String
+  frequency frequency
+  category String?
+  userId String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  completions HabitCompletion[]
+  @@unique([userid,name])
+}
+
+model HabitCompletion {
+  id String @id @default(uuid())
+  habitId String
+  date DateTime
+  createdAt DateTime @default(now())
+  habit Habit  @relation(fields:[habitId],references:[id],onDelete:Cascade)
+  @@unique([habitId,date])
+}
+
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId]) // prevents duplicate follows
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+}
