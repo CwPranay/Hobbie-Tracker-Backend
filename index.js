@@ -3,6 +3,7 @@ import cors from 'cors'
 import authRoutes from "./routes/auth.js"
 import habitRoutes from "./routes/habits.js";
 import friendsRoutes from "./routes/freinds.routes.js";
+import activityRoutes from "./routes/activity.routes.js";
 
 
 
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/friends", friendsRoutes);
+app.use("/api/activity", activityRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {

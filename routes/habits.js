@@ -17,7 +17,7 @@ router.post("/", authMiddleware, async (req, res) => {
                 name,
                 frequency,
                 category,
-                userId: req.userId
+                userId: req.user.id
             }
         })
         res.status(201).json(habit);
@@ -33,7 +33,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
 router.get("/", authMiddleware, async (req, res) => {
     const habits = await prisma.habit.findMany({
-        where: { userId: req.userId },
+        where: { userId: req.user.id },
         include: {
             completions: {
                 orderBy: { date: "desc" },
@@ -101,7 +101,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 router.post("/:id/checkin", authMiddleware, async (req, res) => {
     const { id } = req.params;
     const habit = await prisma.habit.findFirst({
-        where: { id, userId: req.userId }
+        where: { id, userId: req.user.id }
     })
     if (!habit) return res.status(404).json({ message: "Habit not found" });
 
@@ -122,7 +122,7 @@ router.post("/:id/checkin", authMiddleware, async (req, res) => {
 router.get("/:id/progress", authMiddleware, async (req, res) => {
     const { id } = req.params;
     const habit = await prisma.habit.findFirst({
-        where: { id, userId: req.userId },
+        where: { id, userId: req.user.id },
         include: {
             completions: {
                 orderBy: {
