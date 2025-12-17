@@ -20,10 +20,28 @@ router.get("/search", authMiddleware, async (req, res) => {
             id: true,
             name: true,
             email: true,
+            followers: {
+                where: {
+                    followerId: req.userId,
+                },
+                select: {
+                    followerId: true,
+                },
+            },
         },
     });
-    res.json(users)
-})
+
+    const result = users.map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        isFollowing: u.followers.length > 0,
+    }));
+
+    res.json(result);
+});
+
+
 
 router.post("/follow/:id", authMiddleware, async (req, res) => {
     const followingId = req.params.id;
@@ -65,5 +83,33 @@ router.delete("/unfollow/:id", authMiddleware, async (req, res) => {
 
     res.json({ message: "Unfollowed successfully" });
 });
+
+router.get("/stats",authMiddleware,async (req,res) => {
+    const followersCount = await prisma.follow.count({
+        where:{followingId:req.userId}
+    })
+    const followingCount = await prisma.follow.count({
+        where:{followerId:req.userId}
+    })
+    res.json({followersCount,followingCount})
+})
+router.get("/list",authMiddleware,async (req,res) => {
+    const followers = await prisma.follow.findMany({
+        where:{followingId:req.userId},
+        include:{
+            follower:{select:{id:true,name:true,email:true}}
+
+        }
+    })
+
+    const following = await prisma.follow.findMany({
+        where:{followerId:req.userId},
+        include:{
+            following:{select:{id:true,name:true,email:true}}
+        }
+    })
+
+    res.json({followers,following})
+})
 
 export default router;
